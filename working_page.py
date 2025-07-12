@@ -1,5 +1,5 @@
 import streamlit as st
-from scripts.apcas import APCAS_2_0
+from apcas import APCAS_2_0
 
 
 
