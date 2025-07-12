@@ -166,6 +166,32 @@ class APCAS_2_0(Runnable):
 
 
 
+    #------------------------------------------------------------------------------------
+    # Function (Private): Convert PDF page into image(png)
+    #------------------------------------------------------------------------------------
+    
+    def _pdf_page_to_png(self, doc: fitz.open, doc_id: Optional[str] = "doc_01") -> True:
+        """This function save a doc (page of PDF get by calling fitz.open function) as .png image
+
+        Args:
+            doc (fitz.open): loaded page using fitz
+            doc_id (Optional[str], optional): name of image to be saved. Defaults to "doc_01".
+
+        Returns:
+            True: when everything done
+        """
+
+        # Render page to pixmap (image)
+        pix = doc.get_pixmap()
+        
+        # Save pixmap as PNG
+        pix.save(f"images/{doc_id}.png")
+        
+        return True
+
+
+
+
 
 
 
@@ -270,7 +296,13 @@ class APCAS_2_0(Runnable):
             
         images_count = 0                                        # creating instance to store how much images saved yet
         doc = fitz.open(pdf_path)                               # loading pdf
+        if len(doc) == 1:                                       # condition if pdf contain single page
+            self._pdf_page_to_png(doc[0])
+            self.total_images = 1
+            return True
+        
         for page_num, page in enumerate(doc):                   # iterating each page
+            page_num += 1
             images = page.get_images(full=True)                 # extracting image(s) in current page
             for img_index, img in enumerate(images):            # iterating each image if more than one in same page
                 xref = img[0]
@@ -331,13 +363,6 @@ class APCAS_2_0(Runnable):
         generated_summary: Dict[str,str] = dict()                               # defining variable which store generated summaries of each image
         images_path: List[str] = os.listdir(extracted_images_folder_path)       # fetching all images paths
         total_images_count = len(images_path)                                   # extracting total number of images
-
-        if self.total_images == 0:
-            return False,False,False
-
-        if self.total_images == 1:
-            doc_id = image_path[0].split('.')[0]
-            return "", {doc_id:""}, {doc_id:""}
 
         ## iteration of each image
         for index,image_path in enumerate(images_path):
@@ -404,6 +429,10 @@ class APCAS_2_0(Runnable):
         Returns:
             NoReturn: True when vector stored successfully.
         """
+
+        if self.total_images == 1:
+            return True
+
         # getting summaries
         _,_,embed_summaries = self.generate_summary_of_each_image("images")
 
@@ -442,26 +471,35 @@ class APCAS_2_0(Runnable):
             str: response from LLM
         """
 
-        vector_store = FAISS.load_local(
-            folder_path = "faiss_index", 
-            embeddings = self.embedding_model,
-            allow_dangerous_deserialization = True
-        )
+        if self.total_images == 0:
+            return "No images detected (This problem occurs in system)"
 
-        # creating retriever
-        retriver = vector_store.as_retriever(
-            search_type="similarity_score_threshold",
-            search_kwargs={'score_threshold': 0.00000001}
-        )
+        if self.total_images == 1:
+            doc_id = os.listdir("images")[0].split('.')[0]
 
-        # fetching appropriate docs from retriever
-        results = retriver.invoke(user_query)
+        else:
+            vector_store = FAISS.load_local(
+                folder_path = "faiss_index", 
+                embeddings = self.embedding_model,
+                allow_dangerous_deserialization = True
+            )
 
-        if not results: # if no docs fetched from retriever
-            print("I don't know (No image applicable for your this query)")
-            return
-        
-        doc_id = results[0].page_content                        # extracting image unique doc_id
+            # creating retriever
+            retriver = vector_store.as_retriever(
+                search_type="similarity_score_threshold",
+                search_kwargs={'score_threshold': 0.00000001}
+            )
+
+            # fetching appropriate docs from retriever
+            results = retriver.invoke(user_query)
+
+            if not results: # if no docs fetched from retriever
+                print("I don't know (No image applicable for your this query)")
+                return
+            
+            doc_id = results[0].page_content                        # extracting image unique doc_id
+
+            
         image_path = f"images/{doc_id}.png"                     # fetching image from doc_id
 
         with open(image_path, "rb") as f:                       # fetching image data
@@ -557,6 +595,8 @@ class APCAS_2_0(Runnable):
 if __name__ == "__main__":
 
     ai = APCAS_2_0(pdf_path="content/attention.pdf")
+
+    # ai.run_on_terminal()
 
     
 
