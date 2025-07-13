@@ -45,7 +45,7 @@ def home_page() -> None:
 
         st.subheader('Model Working Flow', divider=True)
 
-        st.image('./materials/dummy_image.png')
+        st.image('./materials/APCAS 2.0 (Any PDF Chatting AI System.png')
 
 
         
