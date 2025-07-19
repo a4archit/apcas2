@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from apcas.apcas import APCAS, VERSION
 
 
@@ -22,6 +23,11 @@ def working_page() -> None:
     if st.sidebar.button('Go to Home', type='primary'):
         st.session_state.page = 'home'
 
+    image_title_allocation = st.sidebar.empty()
+    images_allocation = st.sidebar.empty()
+
+
+
     # --------------------------------------------------------- Body ------------------------------------------------------------------- #
 
     # Initialize chat mode if not set
@@ -37,6 +43,12 @@ def working_page() -> None:
             type = 'pdf',
             accept_multiple_files = False,
             help = "You can upload your PDF file here."
+        )
+
+        extraction_method: str = st.selectbox(
+            label = "Choose mode",
+            options = ['images with text','images only','first page only'],
+            format_func = lambda x: x.capitalize()
         )
 
         if uploaded_file:
@@ -62,8 +74,12 @@ def working_page() -> None:
                 with st.spinner(text="Building model..."):
                     # st.write(uploaded_file._file_urls.upload_url)
                     # creating apcas model instance
-                    st.session_state.apcas = APCAS(pdf_path=file_path)
+                    st.session_state.apcas = APCAS(pdf_path=file_path, extraction_method=extraction_method)
 
+                # display total number of images 
+                image_title_allocation.header(f"Images ({st.session_state.apcas.total_images})", divider=True)
+                images_path_list = [f"./extracted_images/{path}" for path in os.listdir("./extracted_images")]
+                images_allocation.image(images_path_list)
     
 
     # If in chat mode, show chat

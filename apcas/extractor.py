@@ -97,6 +97,35 @@ def _pdf_page_to_png(doc: fitz.open, doc_id: Optional[str] = "doc_01") -> True:
 
 
 
+#------------------------------------------------------------------------------------
+# Function: Saving each page as image
+#------------------------------------------------------------------------------------
+
+def save_each_page_as_image(
+        pdf_path: str,
+        images_folder: Optional[str] = 'extracted_images',
+        verbose: bool = True,
+        first_page_only: bool = False
+        ) -> int :
+    
+    doc = fitz.open(pdf_path)                               # loading pdf
+    
+    for page_num, page in enumerate(doc,1):                 # iterating each page
+        doc_id = f"img_p{page_num}"
+        _pdf_page_to_png(page, doc_id)
+        if first_page_only:
+            break
+
+    return page_num
+
+
+
+
+
+
+
+
+
 
 #------------------------------------------------------------------------------------
 # Function: Process PDF

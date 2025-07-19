@@ -50,10 +50,10 @@ from openai import AzureOpenAI
 from langchain_core.runnables import Runnable
 from langchain_core.messages import AIMessage
 from langchain_openai import AzureOpenAIEmbeddings
-from typing import List, Dict, Tuple, NoReturn, Self, Optional
+from typing import List, Dict, Tuple, NoReturn, Self, Optional, Literal
 
 from apcas.clip_model import CLIPEmbeddings
-from apcas.extractor import extract_and_save_images_from_pdf
+from apcas.extractor import extract_and_save_images_from_pdf, save_each_page_as_image
 
 
 
@@ -64,7 +64,7 @@ from apcas.extractor import extract_and_save_images_from_pdf
 #------------------------------------------------------------------------------------
 
 MODEL_NAME = "APCAS"
-VERSION = '2.1.0'
+VERSION = '2.1.1'
 CORE_LLM = "GPT 4o mini"
 
 
@@ -90,7 +90,7 @@ class APCAS(Runnable):
 
     __name__    = f"APCAS {VERSION}(Any PDF Chatting AI System)"
     __model__   = 'GPT 4o mini'
-    __version__ = VERSION # 2.1.0
+    __version__ = VERSION # 2.1.1
 
 
 
@@ -100,7 +100,8 @@ class APCAS(Runnable):
             self, 
             pdf_path: Optional[str] = None,
             verbose: bool = True,
-            show_warnings: bool = True
+            show_warnings: bool = True,
+            extraction_method: Literal['images with text','images only','first page only'] = 'images with text'
         
         ) -> Self:
         """PDFImagesChattingRAG:
@@ -126,8 +127,9 @@ class APCAS(Runnable):
         self.verbose: bool = verbose
         self.pdf_path: str = pdf_path
         self.show_warning: bool = show_warnings
+        self.extraction_method: str = extraction_method 
         if self.pdf_path: # process pdf if user give path
-            self.process_pdf()
+            self.process_pdf(extraction_method=self.extraction_method)
 
         self.clip_model = CLIPEmbeddings(verbose=self.verbose)
         self.azure_client = self.load_azure_client()
@@ -142,6 +144,9 @@ class APCAS(Runnable):
                 warnings.warn("Before further moving forward, must be create an folder (images) in this directory.")
 
         
+
+        
+        ########## End of Constructor ##########
 
 
 
@@ -276,7 +281,11 @@ class APCAS(Runnable):
     # (Class) Function: Process PDF
     #------------------------------------------------------------------------------------
 
-    def process_pdf(self, pdf_path: Optional[str] = None) -> NoReturn:
+    def process_pdf(
+            self, 
+            pdf_path: Optional[str] = None, 
+            extraction_method: Literal['images with text','images only','first page only'] = 'images with text'
+            ) -> NoReturn:
         """Load PDF and extract all available images from it. Must 
 
         Args:
@@ -293,7 +302,17 @@ class APCAS(Runnable):
                 raise FileNotFoundError("Provide path of PDF first")
             
 
-        self.total_images = extract_and_save_images_from_pdf(pdf_path)
+        match extraction_method:
+            case 'images with text':
+                self.total_images = save_each_page_as_image(pdf_path)
+
+            case 'images only':
+                self.total_images = extract_and_save_images_from_pdf(pdf_path)
+
+            case 'first page only':
+                self.total_images = save_each_page_as_image(pdf_path, first_page_only=True)
+
+        
 
         # if self.images_count == 0:
         #     if self.verbose:
@@ -402,7 +421,7 @@ class APCAS(Runnable):
     #------------------------------------------------------------------------------------
 
     def save_vector_store(self) -> NoReturn:
-        """This function built vector store and save it
+        """This function built vector store and save it.
 
         Returns:
             NoReturn: True when vector stored successfully.
