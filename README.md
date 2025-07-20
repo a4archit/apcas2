@@ -20,6 +20,11 @@ APCAS stands for Any PDF Chatting AI System, it is basically a RAG (Retrieval Au
    - Chat with entire PDF (_Images as well as Text_)
 
 
+
+### Working Flow
+![working flow](./materials/APCAS 2.1.1.png)
+
+
 ### Technologies used in this Project
 - Version Control (Git & Github)
 - Web Application (Using Streamlit)
