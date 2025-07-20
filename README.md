@@ -1,6 +1,6 @@
 # APCAS `2.1.1`
 
-> [Take a live demo now!](https://apcasv22.streamlit.app)
+> [Take a live demo now!](https://apcasv211.streamlit.app)
 
 
 APCAS stands for Any PDF Chatting AI System, it is basically a RAG (Retrieval Augmented Generation) based application, that optimized for chatting with any PDF in an efficint way, still it is not a professional project So it may have several bugs.
