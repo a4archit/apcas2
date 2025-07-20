@@ -46,10 +46,7 @@ def home_page() -> None:
 
         st.subheader('Model Working Flow', divider=True)
 
-        st.image(
-                image = './materials/Multimodal RAG Application Chat with the all present images in a PDF.png',
-                caption = "This is not Updated Diagram, It will update soon..."  
-        )
+        st.image(image = './materials/APCAS_2.1.1.png')
 
 
         
