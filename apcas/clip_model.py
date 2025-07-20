@@ -26,7 +26,6 @@ import os
 import faiss
 import torch
 import numpy as np
-import multiprocessing
 
 from PIL import Image
 from pathlib import Path
@@ -73,35 +72,12 @@ class CLIPEmbeddings(Runnable):
         self.model_name = model_name
 
 
+        self._processor = CLIPProcessor.from_pretrained(self.model_name)
+        self._model = CLIPModel.from_pretrained(self.model_name)
 
-        # ------------------------------------- Mutliprocessing [Start] ---------------------------------- #
-
-        def load_clip_processor(shared_dict):
-            shared_dict['processor'] = CLIPProcessor.from_pretrained(self.model_name)
-
-        def load_clip_model(shared_dict):
-            shared_dict['model'] = CLIPModel.from_pretrained(self.model_name)
-
-        manager = multiprocessing.Manager()
-        shared_dict = manager.dict()
-
-        processes = [
-            multiprocessing.Process(target=load_clip_processor, args=(shared_dict,)),
-            multiprocessing.Process(target=load_clip_model, args=(shared_dict,))
-        ]
-
-        for p in processes: # process start
-            p.start()
-        for p in processes: # waiting till all process complete
-            p.join()
-
-        self._processor = shared_dict.get('processor')
-        self._model = shared_dict.get('model')
         if verbose:
-            print("Building CLIP model instance...")
+            print("CLIP model instance build!")
         
-
-        # --------------------------------------- End of multiprocessing -------------------------------- #
 
 
 

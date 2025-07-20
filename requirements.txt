@@ -1,13 +1,13 @@
+streamlit
 
 dotenv
 openai
 langchain
 langchain_openai
-faiss-cpu==1.11.0
-torch==2.7.1
-pillow
 transformers==4.53.2
+torch==2.7.1
+faiss-cpu==1.11.0
+pillow
+numpy
 imagehash
 PyMuPDF 
-
-streamlit
