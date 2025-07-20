@@ -22,8 +22,7 @@
 
 
 ## Dependencies
-import os
-import time
+import os 
 import faiss
 import torch
 import numpy as np

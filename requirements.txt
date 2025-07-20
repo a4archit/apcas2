@@ -2,7 +2,7 @@ dotenv
 openai
 langchain
 langchain_openai
-faiss
+faiss-cpu
 torch
 pillow
 transformers
