@@ -1,8 +1,8 @@
 """
-                    APCAS 2.1.0 (Any PDF Chatting AI System)
+                    APCAS 2.1.1 (Any PDF Chatting AI System)
                     =========================================================================================================
 
-                    VERSION = 2.1.0
+                    VERSION = 2.1.1
 
                     APCAS stands for Any PDF Chatting AI System, it is basically a RAG (Retrieval Augmented Generation) based
                     application, that optimized for chatting with any PDF in an efficint way, still it is not a professional 
@@ -52,8 +52,12 @@ from langchain_core.messages import AIMessage
 from langchain_openai import AzureOpenAIEmbeddings
 from typing import List, Dict, Tuple, NoReturn, Self, Optional, Literal
 
-from apcas.clip_model import CLIPEmbeddings
-from apcas.extractor import extract_and_save_images_from_pdf, save_each_page_as_image
+try:
+    from apcas.clip_model import CLIPEmbeddings
+    from apcas.extractor import extract_and_save_images_from_pdf, save_each_page_as_image
+except ModuleNotFoundError: # reason behind this: system & streamlit server dependency conflicts
+    from clip_model import CLIPEmbeddings
+    from extractor import extract_and_save_images_from_pdf, save_each_page_as_image
 
 
 
@@ -80,7 +84,7 @@ CORE_LLM = "GPT 4o mini"
 
 ########################################################################################################
 # 
-#                                               Main class (APCAS 2.1.0)
+#                                               Main class (APCAS 2.1.1)
 # 
 ########################################################################################################
 
@@ -104,7 +108,7 @@ class APCAS(Runnable):
             extraction_method: Literal['images with text','images only','first page only'] = 'images with text'
         
         ) -> Self:
-        """PDFImagesChattingRAG:
+        """APCAS :
             This is the main class for PDF's Images Chatting AI System \
             using RAG (Retriever Augmented System).
 
@@ -567,7 +571,7 @@ if __name__ == "__main__":
 
     ai = APCAS(pdf_path="content/Projection of Points.pdf")
 
-    ai.run_on_terminal()
+    # ai.run_on_terminal()
 
     
 

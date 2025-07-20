@@ -45,15 +45,17 @@ def working_page() -> None:
             help = "You can upload your PDF file here."
         )
 
-        extraction_method: str = st.selectbox(
-            label = "Choose mode",
-            options = ['images with text','images only','first page only'],
-            format_func = lambda x: x.capitalize()
-        )
 
         if uploaded_file:
+            
+            extraction_method: str = st.selectbox(
+                label = "Choose mode",
+                options = ['images with text','images only','first page only'],
+                format_func = lambda x: x.capitalize()
+            )
+
             if st.button(label = 'Chat with this PDF', type='primary'):
-                with st.spinner(text="Loading document..."):
+                with st.spinner(text="Loading PDF..."):
                     # Switch to chat mode
                     st.session_state.chat_mode = True
                     # Store the uploaded file for later use if needed
@@ -71,19 +73,25 @@ def working_page() -> None:
                     # Now you have a path
                     file_path = "user_uploaded_file.pdf"
 
-                with st.spinner(text="Building model..."):
+                with st.spinner(text="Processing... It may takes up to 10 seconds."):
                     # st.write(uploaded_file._file_urls.upload_url)
                     # creating apcas model instance
                     st.session_state.apcas = APCAS(pdf_path=file_path, extraction_method=extraction_method)
 
                 # display total number of images 
-                image_title_allocation.header(f"Images ({st.session_state.apcas.total_images})", divider=True)
+                image_title_allocation.header(f"Images ({int(st.session_state.apcas.total_images)})", divider=True)
                 images_path_list = [f"./extracted_images/{path}" for path in os.listdir("./extracted_images")]
                 images_allocation.image(images_path_list)
     
 
     # If in chat mode, show chat
     if st.session_state.chat_mode:
+
+        # display images to user 
+        image_title_allocation.header(f"Images ({int(st.session_state.apcas.total_images)})", divider=True)
+        images_path_list = [f"./extracted_images/{path}" for path in os.listdir("./extracted_images")]
+        images_allocation.image(images_path_list)
+
         st.header(f'APCAS {VERSION} Chat')
 
         # Try another PDF button

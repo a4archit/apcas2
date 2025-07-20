@@ -1,0 +1,11 @@
+dotenv
+openai
+langchain
+langchain_openai
+faiss
+torch
+pillow
+transformers
+imagehash
+PyMuPDF 
+streamlit

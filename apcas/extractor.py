@@ -4,14 +4,12 @@
 # Dependencies
 #------------------------------------------------------------------------------------
 import os
-import warnings
 import fitz  # PyMuPDF for PDF handling
 import imagehash
 import io 
 
 from PIL import Image
-from base64 import b64encode
-from typing import Literal, List, Dict, Tuple, NoReturn,  Optional
+from typing import NoReturn,  Optional
 
 
 
