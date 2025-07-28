@@ -596,6 +596,7 @@ if __name__ == "__main__":
 
     ai = APCAS_2_0(pdf_path="content/attention.pdf")
 
+    # running on local machine
     # ai.run_on_terminal()
 
     
